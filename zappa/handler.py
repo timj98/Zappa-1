@@ -583,25 +583,16 @@ class LambdaHandler:
                         )
 
                     if response.data:
-#                         if (
-#                             settings.BINARY_SUPPORT
-#                             and not response.mimetype.startswith("text/")
-#                             and response.mimetype != "application/json"
-#                             and response.mimetype != "application/javascript"
-#                             and response.mimetype != "application/ecmascript"
-#                             and response.mimetype != "application/xml"
-#                             and response.mimetype != "application/xml-external-parsed-entity"
-#                             and response.mimetype != "application/xml-dtd"
-#                             and response.mimetype != "image/svg+xml"
-#                             and not (response.mimetype.startswith("application/") and response.mimetype.endswith("+xml"))
-#                         ):
-                        zappa_returndict["body"] = base64.b64encode(
-                            response.data
-                        ).decode("utf-8")
-                        zappa_returndict["isBase64Encoded"] = True
-#                         else:
-#                             zappa_returndict["body"] = response.get_data(as_text=True)
-
+                        if settings.BINARY_SUPPORT:
+                            if not response.mimetype.startswith("text/") \
+                                or response.mimetype != "application/json":
+                                    zappa_returndict['body'] = base64.b64encode(response.data).decode('utf-8')
+                                    zappa_returndict["isBase64Encoded"] = True
+                            else:
+                                zappa_returndict['body'] = response.data
+                        else:
+                            zappa_returndict['body'] = response.get_data(as_text=True)
+                            
                     zappa_returndict["statusCode"] = response.status_code
                     if "headers" in event:
                         zappa_returndict["headers"] = {}
